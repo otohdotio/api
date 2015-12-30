@@ -27,16 +27,16 @@ ADD ssl/ssl.conf /etc/httpd/conf.d/ssl.conf
 ADD ssl/host.crt /etc/pki/tls/certs/host.crt
 ADD ssl/host.key /etc/pki/tls/private/host.key
 ADD ssl/ca.crt /etc/pki/tls/certs/ca.crt
-RUN mkdir /var/www/html/api
-ADD api/*.py /var/www/html/api
-RUN chmod +x /var/www/html/*.py
+RUN mkdir -p /var/www/html/api && \
+    mkdir -p /var/log/httpd
+ADD api/*.py /var/www/html/api/
+RUN chmod +x /var/www/html/api/*.py
 
 # Fix ownerships
-RUN chown -R apache:apache /var/log/html && \
-    chmod -R 660 /etc/pki/tls/certs/hosts.* && \
-    chmod -R 660 /etc/pki/tls/private/hosts.key && \
+RUN chown -R apache:apache /var/log/httpd && \
+    chmod -R 660 /etc/pki/tls/certs/host.* && \
+    chmod -R 660 /etc/pki/tls/private/host.key && \
     chown -R apache:apache /var/www/html && \
-    chown -R apache:apache /var/log/httpd && \
     echo "export PYTHONPATH=/var/www/html/api:${PYTHONPATH}" >> /root/.bashrc
 
 # We shouldn't have more than one API container running per host, so we'll go
