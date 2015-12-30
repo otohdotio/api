@@ -32,6 +32,9 @@ RUN mkdir -p /var/www/html/api && \
 ADD api/*.py /var/www/html/api/
 RUN chmod +x /var/www/html/api/*.py
 
+# Suppress httpd FQDN error
+RUN echo "ServerName api.otoh.io" >> /etc/httpd/conf/httpd.conf
+
 # Fix ownerships
 RUN chown -R apache:apache /var/log/httpd && \
     chmod -R 660 /etc/pki/tls/certs/host.* && \

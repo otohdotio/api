@@ -32,6 +32,17 @@ cdb = model.CassandraDatabase(logger)
 mdb = model.MariaDBDatabase(logger)
 
 
+class Test(object):
+    exposed = True
+
+    def __init__(self):
+        pass
+
+    def GET(self):
+        cherrypy.response.status = 200
+        return 'test successful'
+
+
 class CA(object):
     exposed = True
 
@@ -176,3 +187,34 @@ class Search(object):
         raise cherrypy.HTTPError(status=405,
                                  message='DELETE method not exposed for' +
                                          '/search, use POST')
+
+cherrypy.tree.mount(
+    Test(), '/test',
+    {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
+)
+cherrypy.tree.mount(
+    CA(cdb, logger), '/ca',
+    {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
+)
+cherrypy.tree.mount(
+    Cert(cdb, logger), '/cert',
+    {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
+)
+cherrypy.tree.mount(
+    CSR(cdb, logger), '/csr',
+    {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
+)
+cherrypy.tree.mount(
+    Escrow(cdb, logger), '/escrow',
+    {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
+)
+cherrypy.tree.mount(
+    OCSP(cdb, logger), '/ocsp',
+    {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
+)
+cherrypy.tree.mount(
+    Search(cdb, logger), '/search',
+    {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
+)
+
+application = cherrypy.tree
