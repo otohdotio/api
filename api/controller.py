@@ -36,7 +36,7 @@ class Test(object):
     exposed = True
 
     def __init__(self):
-        pass
+        self.logger.debug('Test object init complete ')
 
     def GET(self):
         cherrypy.response.status = 200
