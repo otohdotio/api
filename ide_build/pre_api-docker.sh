@@ -19,4 +19,4 @@ fi
 docker ps | grep api | awk '{print $1}' | xargs -I {} docker kill {}
 docker ps -a | grep api | awk '{print $1}' | xargs -I {} docker rm {}
 
-printf "{ \"AttachStdin\" : false, \"Env\" : [ \"CASSANDRA=%s\" ], \"Volumes\" : { }, \"ExposedPorts\" : { }, \"HostConfig\" : { \"Binds\" : [ ], \"NetworkMode\" : \"host\" }}" `docker inspect --format "{{ .NetworkSettings.IPAddress }}" cs1` > ../container_settings.json
+printf "{ \"AttachStdin\" : false, \"Env\" : [ \"CASSANDRA=%s\" ], \"Volumes\" : { }, \"ExposedPorts\" : { }, \"HostConfig\" : { \"Binds\" : [ ], \"NetworkMode\" : \"host\" }}" `docker inspect --format "{{ .NetworkSettings.IPAddress }}" cs1` > container_settings.json

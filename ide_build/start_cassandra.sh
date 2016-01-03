@@ -6,6 +6,9 @@ if [ "$(docker-machine status default)" != "Running" ]; then
 fi
 eval "$(docker-machine env default)"
 
+# Grab the latest Cassandra image
+docker pull cassandra
+
 # Check to see if cs1 exists
 CS1_EXISTS=`docker inspect --format="{{.State.Running}}" cs1 >/dev/null 2>&1`
 if [ "$?" != "0" ]; then
@@ -20,13 +23,13 @@ else
 	CONTINUE="true"
 	printf "attempting to create keyspace and tables"
 	while [ "${CONTINUE}" == "true" ]; do
-		docker exec cs1 cqlsh -e "create keyspace if not exists brickabac with replication = { 'class': 'SimpleStrategy', 'replication_factor': 3 };" >/dev/null 2>&1
+		docker exec cs1 cqlsh -e "create keyspace if not exists otohdotio with replication = { 'class': 'SimpleStrategy', 'replication_factor': 3 };" >/dev/null 2>&1
 		if [ "${?}" == "0" ]; then
 			CONTINUE="false"
 		fi
 		printf "."
 	done
-	docker cp ./schema.cql cs1:/schema.cql && docker exec cs1 cqlsh -k brickabac -f /schema.cql >/dev/null 2>&1
+	docker cp ./schema.cql cs1:/schema.cql && docker exec cs1 cqlsh -k otohdotio -f /schema.cql >/dev/null 2>&1
 	printf "...done\n"
 fi
 EXISTING_CONTAINERS=`docker ps -q | xargs -I {} docker inspect --format '{{.Name}}' {} | grep "^/cs"`
