@@ -42,19 +42,14 @@ class CassandraDatabase(object):
 
 class MariaDBDatabase(object):
 
-    def __init__(self, logger, config):
+    def __init__(self, logger):
         self.logger = logger
-        # self.config_dict = include.parse_config(config)
-
-    def connect(self, cursorclass):
         try:
-            if cursorclass == "dict":
-                self.db = MySQLdb.connect(host=self.config_dict['db_server'],
-                                     user=self.config_dict['db_user'],
-                                     passwd=self.config_dict['db_password'],
-                                     db=self.config_dict['db_name'],
-                                     cursorclass=MySQLdb.cursors.DictCursor)
-            return self.db
+            self.db = MySQLdb.connect(host=os.environ['MDB_SERVER'],
+                                      user='root',
+                                      passwd=os.environ['MDB_PW'],
+                                      db='otohdotio',
+                                      cursorclass=MySQLdb.cursors.DictCursor)
         except MySQLdb.Error as e:
             raise Exception('Database.connect failed: ' + str(e))
 
