@@ -24,9 +24,9 @@ RUN pip install cherrypy && \
 ### For now, copy from a local clone (better for planes)
 #RUN git clone --branch prod git@github.com:otohdotio/api.git /api
 ADD ssl/ssl.conf /etc/httpd/conf.d/ssl.conf
-ADD ssl/host.crt /etc/pki/tls/certs/host.crt
-ADD ssl/host.key /etc/pki/tls/private/host.key
-ADD ssl/ca.crt /etc/pki/tls/certs/ca.crt
+ADD ssl/server.crt /etc/pki/tls/certs/server.crt
+ADD ssl/server.key /etc/pki/tls/private/server.key
+ADD ssl/server-ca.crt /etc/pki/tls/certs/server-ca.crt
 RUN mkdir -p /var/www/html/api && \
     mkdir -p /var/log/httpd
 ADD api/*.py /var/www/html/api/
@@ -37,8 +37,8 @@ RUN echo "ServerName api.otoh.io" >> /etc/httpd/conf/httpd.conf
 
 # Fix ownerships
 RUN chown -R apache:apache /var/log/httpd && \
-    chmod -R 660 /etc/pki/tls/certs/host.* && \
-    chmod -R 660 /etc/pki/tls/private/host.key && \
+    chmod -R 660 /etc/pki/tls/certs/server.* && \
+    chmod -R 660 /etc/pki/tls/private/server.key && \
     chown -R apache:apache /var/www/html && \
     echo "export PYTHONPATH=/var/www/html/api:${PYTHONPATH}" >> /root/.bashrc
 
