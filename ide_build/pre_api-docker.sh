@@ -16,7 +16,7 @@ fi
 
 # Kill and remove any existing api containers
 # Note the -I argument to xargs is for Mac OS X compatibility
-docker ps | grep api | awk '{print $1}' | xargs -I {} docker kill {}
-docker ps -a | grep api | awk '{print $1}' | xargs -I {} docker rm {}
+docker ps | grep otoh.io-api | awk '{print $1}' | xargs -I {} docker kill {}
+docker ps -a | grep otoh.io-api | awk '{print $1}' | xargs -I {} docker rm {}
 
 printf "{ \"AttachStdin\" : false, \"Env\" : [ \"CASSANDRA=%s\" ], \"Volumes\" : { }, \"ExposedPorts\" : { }, \"HostConfig\" : { \"Binds\" : [ ], \"NetworkMode\" : \"host\" }}" `docker inspect --format "{{ .NetworkSettings.IPAddress }}" cs1` > container_settings.json

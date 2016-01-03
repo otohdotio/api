@@ -7,7 +7,10 @@ fi
 eval "$(docker-machine env default)"
 
 # Grab the latest Cassandra image
-docker pull cassandra
+CASSANDRA_EXISTS=`docker images | grep cassandra >/dev/null 2>&1`
+if [ "$?" != "0" ]; then
+	docker pull cassandra
+fi
 
 # Check to see if cs1 exists
 CS1_EXISTS=`docker inspect --format="{{.State.Running}}" cs1 >/dev/null 2>&1`
