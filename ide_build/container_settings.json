@@ -1,1 +1,1 @@
-{ "AttachStdin" : false, "Env" : [ "CASSANDRA=172.17.0.71" ], "Volumes" : { }, "ExposedPorts" : { }, "HostConfig" : { "Binds" : [ ], "NetworkMode" : "host" }}
+{ "AttachStdin" : false, "Env" : [ "CASSANDRA=172.17.0.77" ], "Volumes" : { }, "ExposedPorts" : { }, "HostConfig" : { "Binds" : [ ], "NetworkMode" : "host" }}

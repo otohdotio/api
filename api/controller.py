@@ -35,12 +35,13 @@ mdb = model.MariaDBDatabase(logger)
 class Test(object):
     exposed = True
 
-    def __init__(self):
+    def __init__(self, logger):
+        self.logger = logger
         self.logger.debug('Test object init complete ')
 
     def GET(self):
         cherrypy.response.status = 200
-        return 'test successful'
+        return 'test successful\n'
 
 
 class CA(object):
@@ -189,7 +190,7 @@ class Search(object):
                                          '/search, use POST')
 
 cherrypy.tree.mount(
-    Test(), '/test',
+    Test(logger), '/test',
     {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
 )
 cherrypy.tree.mount(
