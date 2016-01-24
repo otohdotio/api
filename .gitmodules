@@ -1,0 +1,6 @@
+[submodule "autoincdb"]
+	path = autoincdb
+	url = git@github.com:otohdotio/autoincdb.git
+[submodule "persistence"]
+	path = persistence
+	url = git@github.com:otohdotio/persistence.git

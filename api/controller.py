@@ -6,13 +6,10 @@ import sys
 
 import cherrypy
 
-# from api import include, model
 root = os.path.join(os.path.dirname(__file__), '..')
 sys.path.insert(0, root)
 
 from api import include, model
-
-# from api import model, include
 
 __version__ = '0.1'
 __author__ = 'jason'

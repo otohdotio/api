@@ -74,8 +74,9 @@ class MariaDBDatabase(object):
 
 class Certificate(object):
 
-    def __init__(self, cdb, logger):
+    def __init__(self, logger, cdb, mdb):
         self.cdb = cdb
+        self.mdb = mdb
         self.logger = logger
         self.logger.debug('Certificate object init complete')
         pass
