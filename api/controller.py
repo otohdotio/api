@@ -1,8 +1,12 @@
 import logging
 import logging.handlers
+import os
 import sys
 
 import cherrypy
+
+root = os.path.join(os.path.dirname(__file__), '.')
+sys.path.insert(0, root)
 
 from model import CassandraDatabase, MariaDBDatabase
 
