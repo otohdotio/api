@@ -9,6 +9,7 @@ root = os.path.join(os.path.dirname(__file__), '.')
 sys.path.insert(0, root)
 
 from model import CassandraDatabase, MariaDBDatabase
+from include import handle_json
 
 __version__ = '0.1'
 __author__ = 'jason'
@@ -24,7 +25,7 @@ logger.addHandler(console_handler)
 logger.debug('logger initialized')
 
 cdb = CassandraDatabase(logger)
-mdb = MariaDBDatabase(logger)
+# mdb = MariaDBDatabase(logger)
 
 
 class Test(object):
@@ -48,7 +49,7 @@ class CA(object):
         self.logger.debug('CA object init complete')
 
     def GET(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def POST(self):
         raise cherrypy.HTTPError(status=405,
@@ -61,7 +62,7 @@ class CA(object):
                                          'use GET or DELETE')
 
     def DELETE(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
 
 class Cert(object):
@@ -73,7 +74,7 @@ class Cert(object):
         self.logger.debug('Cert object init complete')
 
     def GET(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def POST(self):
         raise cherrypy.HTTPError(status=405,
@@ -86,7 +87,7 @@ class Cert(object):
                                          'use GET or DELETE')
 
     def DELETE(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
 
 class CSR(object):
@@ -103,7 +104,7 @@ class CSR(object):
                                          '/csr, use POST')
 
     def POST(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def PUT(self):
         raise cherrypy.HTTPError(status=405,
@@ -125,16 +126,16 @@ class Escrow(object):
         self.logger.debug('Escrow object init complete')
 
     def GET(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def POST(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def PUT(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def DELETE(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
 
 class OCSP(object):
@@ -146,16 +147,16 @@ class OCSP(object):
         self.logger.debug('OCSP object init complete')
 
     def GET(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def POST(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def PUT(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def DELETE(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
 
 class Search(object):
@@ -172,7 +173,7 @@ class Search(object):
                                          '/search, use POST')
 
     def POST(self):
-        data = include.handle_json(cherrypy.request.headers['Content-Length'])
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def PUT(self):
         raise cherrypy.HTTPError(status=405,
