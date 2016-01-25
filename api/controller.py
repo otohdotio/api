@@ -1,15 +1,10 @@
-import json
 import logging
 import logging.handlers
-import os
 import sys
 
 import cherrypy
 
-root = os.path.join(os.path.dirname(__file__), '..')
-sys.path.insert(0, root)
-
-from api import include, model
+from model import CassandraDatabase, MariaDBDatabase
 
 __version__ = '0.1'
 __author__ = 'jason'
@@ -24,9 +19,8 @@ console_handler.setLevel(logging.DEBUG)
 logger.addHandler(console_handler)
 logger.debug('logger initialized')
 
-
-cdb = model.CassandraDatabase(logger)
-mdb = model.MariaDBDatabase(logger)
+cdb = CassandraDatabase(logger)
+mdb = MariaDBDatabase(logger)
 
 
 class Test(object):

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 import json
-import OpenSSL
 import unittest
 from datetime import datetime
 
+import OpenSSL
 import requests
 
 # For now we're using self-signed certs, so let's ignore the warnings

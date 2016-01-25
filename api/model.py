@@ -1,16 +1,11 @@
 import os
 import sys
-import uuid
 
 import MySQLdb
-
-from cassandra.cluster import Cluster
 from cassandra import ConsistencyLevel
+from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
 from cassandra.query import dict_factory
-
-root = os.path.join(os.path.dirname(__file__), '..')
-sys.path.insert(0, root)
 
 
 class CassandraDatabase(object):
