@@ -16,9 +16,11 @@ Here's an index of the different API endpoints and their exposed methods.
 
 | Description | Method | Endpoint | Authentication |
 | :---------- | :----- | :------- | :------------- |
-| Get a CA certificate | GET | /ca | Client cert |
+| Retrieve a CA certificate | GET | /ca | Client cert |
+| Create a CA certificate | POST | /ca | Client cert |
 | Delete a CA certificate | DELETE | /ca | Client cert |
-| Get a client or SSL certificate | GET | /cert | |
+| Retrieve a client or SSL certificate | GET | /cert | |
+| Create a client or SSL certificate | POST | /cert | |
 | Delete a client or SSL certificate | DELETE | /cert | Client cert |
 | Submit a certificate signing request | POST | /csr | |
 | Get an encrypted private key from escrow | GET | /escrow | Client cert |
@@ -44,6 +46,7 @@ Retrieve and delete Certificate Authority certificates.
 | Method | Form | Example | JSON | Returns | Auth required |
 | :----- | :------- | :------ | :----- | :------ | :----- |
 | GET | /ca/<uuid> | https://api.otoh.io/ca/b787ce82-999f-4e39-afc0-c7a022a322a5 | None | ```{ "ca": "<ca PEM>" }``` | None |
+| POST | /ca | https://api.otoh.io/ca | ```{ "csr": "<csr PEM>" }``` | ```{ "uuid": "<uuid4>", "cert", "<cert PEM>" }``` | Client cert |
 | DELETE | /ca/<uuid> | https://api.otoh.io/ca/b787ce82-999f-4e39-afc0-c7a022a322a5 | None | None | Signing cert |
 
 ### /cert
@@ -55,6 +58,7 @@ Retrieve and delete client or SSL certificates.
 | Method | Form | Example | JSON | Returns | Auth required |
 | :----- | :------- | :------ | :----- | :------ | :----- |
 | GET | /cert/<uuid> | https://api.otoh.io/cert/b787ce82-999f-4e39-afc0-c7a022a322a5 | None | ```{ "cert": "<cert PEM>" }``` | None |
+| POST | /cert | https://api.otoh.io/cert | ```{ "csr": "<csr PEM>" }``` | ```{ "uuid": "<uuid4>", "cert", "<cert PEM>" }``` | None |
 | DELETE | /cert/<uuid> | https://api.otoh.io/cert/b787ce82-999f-4e39-afc0-c7a022a322a5 | None | None | Owning client cert, or signing cert |
 
 ### /csr

@@ -77,6 +77,7 @@ class Cert(object):
         data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def POST(self):
+        ### Left off here
         raise cherrypy.HTTPError(status=405,
                                  message='POST method not exposed for ' +
                                          '/cert, use GET or DELETE')
