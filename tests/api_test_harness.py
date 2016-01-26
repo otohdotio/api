@@ -27,8 +27,7 @@ class Monolithic(unittest.TestCase):
         endpoint = self.apiurl + '/test'
         response = self.s.get(endpoint, verify=False)
 
-        self.assertEqual(json.loads(response.json())['test successful\n'],
-                         'true')
+        self.assertEqual(response.text, 'test successful\n')
 
     def test_02_newcert(self):
         endpoint = self.apiurl + '/newuser'
