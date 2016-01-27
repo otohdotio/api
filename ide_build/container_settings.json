@@ -1,1 +1,1 @@
-{ "AttachStdin" : false, "Env" : [ "CASSANDRA=172.17.0.1" ], "Volumes" : { }, "ExposedPorts" : { }, "HostConfig" : { "Binds" : [ ], "NetworkMode" : "host" }}
+{ "AttachStdin" : false, "Env" : [ "CASSANDRA=172.17.0.12", "MDB_SERVER=192.168.99.100", "MDB_PW=ccJtyF3dTplyez4v" ], "Volumes" : { }, "ExposedPorts" : { }, "HostConfig" : { "Binds" : [ ], "NetworkMode" : "host" }}

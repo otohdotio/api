@@ -25,8 +25,7 @@ logger.addHandler(console_handler)
 logger.debug('logger initialized')
 
 cdb = CassandraDatabase(logger)
-# mdb = MariaDBDatabase(logger)
-
+mdb = MariaDBDatabase(logger)
 
 class Test(object):
     exposed = True
@@ -68,8 +67,9 @@ class CA(object):
 class Cert(object):
     exposed = True
 
-    def __init__(self, db, logger):
-        self.db = db
+    def __init__(self, cdb, mdb, logger):
+        self.cdb = cdb
+        self.mdb = mdb
         self.logger = logger
         self.logger.debug('Cert object init complete')
 
@@ -195,7 +195,7 @@ cherrypy.tree.mount(
     {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
 )
 cherrypy.tree.mount(
-    Cert(cdb, logger), '/cert',
+    Cert(cdb, mdb, logger), '/cert',
     {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
 )
 cherrypy.tree.mount(

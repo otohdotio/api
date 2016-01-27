@@ -1,7 +1,7 @@
 import os
 import sys
 
-import MySQLdb
+import MySQLdb.cursors
 from cassandra import ConsistencyLevel
 from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
