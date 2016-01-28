@@ -124,6 +124,19 @@ class Certificate(object):
         except Exception as e:
             raise e
 
+        # Generate our CQL queries to store the cert
+        cql = """
+                insert into cert (uuid, cert_sn, cert, ca_chain)
+                values (\''{0}'\', \''{1}'\', \''{2}'\', null)
+              """
+        cql.format(uuid, sn, cert_pem)
+        # TODO: set up persistence container to contain otoh CA certs
+        try:
+            # Execute our CQL query
+            self.cdb.execute(cql)
+        except Exception as e:
+            raise e
+
 
 
 
