@@ -1,11 +1,14 @@
 import os
-import sys
+import uuid
 
 import MySQLdb.cursors
+import OpenSSL
 from cassandra import ConsistencyLevel
 from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
 from cassandra.query import dict_factory
+
+from ca import CA
 
 
 class CassandraDatabase(object):
@@ -70,8 +73,57 @@ class MariaDBDatabase(object):
 class Certificate(object):
 
     def __init__(self, logger, cdb, mdb):
+        self.ca = CA(config='/ca_config.yaml')
         self.cdb = cdb
         self.mdb = mdb
         self.logger = logger
         self.logger.debug('Certificate object init complete')
         pass
+
+    def get_new_sn(self):
+        # Generate a new uuid4
+        u = uuid.uuid4()
+
+        # Insert it into the db, which auto_increments the primary key
+        sql = """
+                INSERT INTO certificate
+                VALUES(NULL, '{0}')
+              """
+        sql.format(u)
+        try:
+            self.mdb.execute('insert new uuid', sql)
+        except MySQLdb.Error as e:
+            raise e
+
+        # Get the new serial number
+        sql = """
+                SELECT sn FROM certificate
+                WHERE uuid = \''{0}'\'
+              """
+        sql.format(u)
+        r = []
+        try:
+            self.mdb.execute('select new sn', sql)
+        except MySQLdb.Error as e:
+            raise e
+        sn = r[0]['sn']
+
+        # Return the serial number and uuid
+        return [sn, u]
+
+    def set_cert(self, username, csr, key_use, ca_bool):
+        # Load the CSR
+        req = OpenSSL.crypto.load_certificate_request(OpenSSL.crypto.FILETYPE_PEM, csr)
+
+        try:
+            # Generate a new sequential SN and a random UUID
+            uuid, sn = self.get_new_sn()
+            # Now create the new cert
+            cert_pem = self.ca.create_cert(csr, key_use, sn, ca_bool)
+            # Left off here, next step is to insert the cert into Cassandra
+        except Exception as e:
+            raise e
+
+
+
+
