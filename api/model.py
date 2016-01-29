@@ -8,6 +8,9 @@ from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
 from cassandra.query import dict_factory
 
+# root = os.path.join(os.path.dirname(__file__), '.')
+# sys.path.insert(0, root)
+
 from ca import CA
 
 
@@ -82,14 +85,14 @@ class Certificate(object):
 
     def get_new_sn(self):
         # Generate a new uuid4
-        u = uuid.uuid4()
+        u = str(uuid.uuid4())
 
         # Insert it into the db, which auto_increments the primary key
         sql = """
                 INSERT INTO certificate
                 VALUES(NULL, '{0}')
               """
-        sql.format(u)
+        sql = sql.format(u)
         try:
             self.mdb.execute('insert new uuid', sql)
         except MySQLdb.Error as e:
@@ -98,28 +101,30 @@ class Certificate(object):
         # Get the new serial number
         sql = """
                 SELECT sn FROM certificate
-                WHERE uuid = \''{0}'\'
+                WHERE uuid = '{0}'
               """
-        sql.format(u)
+        sql = sql.format(u)
         r = []
         try:
-            self.mdb.execute('select new sn', sql)
+            r = self.mdb.execute('select new sn', sql)
         except MySQLdb.Error as e:
             raise e
-        sn = r[0]['sn']
+        sn = str(r[0]['sn'])
 
         # Return the serial number and uuid
-        return [sn, u]
+        return u, sn
 
-    def set_cert(self, username, csr, key_use, ca_bool):
+    def set_cert(self, csr, key_use, ca_bool):
         # Load the CSR
         req = OpenSSL.crypto.load_certificate_request(OpenSSL.crypto.FILETYPE_PEM, csr)
 
+        u = ''
         try:
             # Generate a new sequential SN and a random UUID
-            uuid, sn = self.get_new_sn()
+            u, sn = self.get_new_sn()
             # Now create the new cert
-            cert_pem = self.ca.create_cert(csr, key_use, sn, ca_bool)
+            cert_pem = self.ca.create_cert(csr, key_use, int(sn), ca_bool)
+            cert_pem = cert_pem.replace('\n', '\\n')
             # Left off here, next step is to insert the cert into Cassandra
         except Exception as e:
             raise e
@@ -127,15 +132,17 @@ class Certificate(object):
         # Generate our CQL queries to store the cert
         cql = """
                 insert into cert (uuid, cert_sn, cert, ca_chain)
-                values (\''{0}'\', \''{1}'\', \''{2}'\', null)
+                values ('{0}', {1}, '{2}', null)
               """
-        cql.format(uuid, sn, cert_pem)
+        cql = cql.format(u, sn, cert_pem)
         # TODO: set up persistence container to contain otoh CA certs
         try:
             # Execute our CQL query
-            self.cdb.execute(cql)
+            self.cdb.execute('store cert', cql)
         except Exception as e:
             raise e
+
+        return u, sn, cert_pem
 
 
 

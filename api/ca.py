@@ -21,6 +21,8 @@ class CA(object):
         # Grab signing cert from config file
         ca_cert = self.config_dict['signing_cert']
         ca_key = self.config_dict['signing_key']
+        ### Left off here -- I think I removed the key password, which
+        # probably won't work with pyOpenSSL. Need to regenerate the cert
         ca_key_passwd = self.config_dict['signing_key_passwd']
 
         # Currently only support key encipherment and signing certs

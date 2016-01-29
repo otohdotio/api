@@ -39,29 +39,26 @@ class Monolithic(unittest.TestCase):
         req = c.X509Req()
         req.get_subject().CN = self.email
         req.set_pubkey(self.key)
-        req.sign(self.key, "sha1")
+        req.sign(self.key, "sha256")
 
         # Grab request
         self.csr = c.dump_certificate_request(c.FILETYPE_PEM, req)
-        csrdict = {'csr': self.csr}
+        csrdict = {'csr': self.csr, 'key_use': 'ke'}
 
         # Now submit the CSR and get a cert back
         r = requests.post(endpoint,
                          json=json.loads(json.dumps(csrdict)),
                          verify=False)
-        stop = 'here'
         self.response_uuid = r.json()['uuid']
-        self.response_cert = r.json()['cert']
+        self.response_cert = r.json()['cert'].replace('\\n', '\n')
 
         # Extract the public key from the new cert
         cert = c.load_certificate(c.FILETYPE_PEM, self.response_cert)
         cert_pubkey = cert.get_pubkey()
         # self.response_pubkey = c.dump_publickey(c.FILETYPE_PEM, cert_pubkey)
 
-        stop = 'here'
-        # self.assertEqual(self.pubkey, self.response_pubkey)
-
-        # Just while we're sorting this test case out...
+        # Need to figure out an assertion for this test case.
+        print self.response_cert
         self.assertTrue(True)
 
 
