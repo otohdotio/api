@@ -80,24 +80,12 @@ class Cert(object):
         self.logger.debug('Cert object init complete')
 
     def GET(self):
-        raise cherrypy.HTTPError(status=405,
-                                 message='PUT method not exposed for /cert, ' +
-                                         'use GET or DELETE')
+        data = handle_json(cherrypy.request.headers['Content-Length'])
 
     def POST(self):
-        data = handle_json(cherrypy.request.headers['Content-Length'])
-        if not data.get('csr') or not data.get('key_use'):
-            raise cherrypy.HTTPError(status=400,
-                                     message='ERROR: Must provide CSR ' +
-                                             'and key_use')
-        if not data.get('is_ca'):
-            is_ca = False
-        else:
-            is_ca = data['is_ca']
-        uuid, sn, cert_pem = self.certificate.set_cert(data['csr'],
-                                                       data['key_use'],
-                                                       is_ca)
-        return json.dumps({'uuid': uuid, 'sn': sn, 'cert': cert_pem})
+        raise cherrypy.HTTPError(status=405,
+                                 message='POST method not exposed for /cert, ' +
+                                         'use GET or DELETE')
 
     def PUT(self):
         raise cherrypy.HTTPError(status=405,
@@ -115,6 +103,8 @@ class CSR(object):
         self.db = db
         self.logger = logger
         self.logger.debug('CSR object init complete')
+        self.certificate = Certificate(logger, cdb, mdb)
+        self.logger.debug('Cert object init complete')
 
     def GET(self):
         raise cherrypy.HTTPError(status=405,
@@ -123,6 +113,18 @@ class CSR(object):
 
     def POST(self):
         data = handle_json(cherrypy.request.headers['Content-Length'])
+        if not data.get('csr') or not data.get('key_use'):
+            raise cherrypy.HTTPError(status=400,
+                                     message='ERROR: Must provide CSR ' +
+                                             'and key_use')
+        if not data.get('is_ca'):
+            is_ca = False
+        else:
+            is_ca = data['is_ca']
+        uuid, sn, cert_pem = self.certificate.set_cert(data['csr'],
+                                                       data['key_use'],
+                                                       is_ca)
+        return json.dumps({'uuid': uuid, 'sn': sn, 'cert': cert_pem})
 
     def PUT(self):
         raise cherrypy.HTTPError(status=405,

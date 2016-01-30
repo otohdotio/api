@@ -25,8 +25,8 @@ class Monolithic(unittest.TestCase):
 
         self.assertEqual(response.text, 'test successful\n')
 
-    def test_02_get_cert(self):
-        endpoint = self.apiurl + '/cert'
+    def test_02_submit_csr_get_cert(self):
+        endpoint = self.apiurl + '/csr'
         # Set up CSR objectskey = OpenSSL.crypto.PKey()
         c = OpenSSL.crypto
         self.key = c.PKey()

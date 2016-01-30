@@ -20,7 +20,6 @@ Here's an index of the different API endpoints and their exposed methods.
 | Create a CA certificate | POST | /ca | Client cert |
 | Delete a CA certificate | DELETE | /ca | Client cert |
 | Retrieve a client or SSL certificate | GET | /cert | |
-| Create a client or SSL certificate | POST | /cert | |
 | Delete a client or SSL certificate | DELETE | /cert | Client cert |
 | Submit a certificate signing request | POST | /csr | |
 | Get an encrypted private key from escrow | GET | /escrow | Client cert |
