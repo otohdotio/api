@@ -144,6 +144,18 @@ class Certificate(object):
 
         return u, sn, cert_pem
 
+    def get_cert(self, u):
+        cql = """
+                select cert from cert where uuid = '{0}'
+              """
+        cql = cql.format(u)
+        r = []
+        try:
+            r = self.cdb.execute('get cert by uuid', cql)
+        except Exception as e:
+            raise e
+
+        return {'cert': str(r[0]['cert'])}
 
 
 

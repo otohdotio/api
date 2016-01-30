@@ -79,8 +79,11 @@ class Cert(object):
         self.certificate = Certificate(logger, cdb, mdb)
         self.logger.debug('Cert object init complete')
 
-    def GET(self):
-        data = handle_json(cherrypy.request.headers['Content-Length'])
+    def GET(self, **kwargs):
+        if not kwargs.get('uuid'):
+            raise cherrypy.HTTPError(status=400,
+                                     message='ERROR: Must provide UUID')
+        return json.dumps(self.certificate.get_cert(kwargs['uuid']))
 
     def POST(self):
         raise cherrypy.HTTPError(status=405,
