@@ -18,10 +18,6 @@ class Monolithic(unittest.TestCase):
         self.apiurl = 'https://localhost:443'
         self.now = datetime.now().strftime('%Y%m%d%H%M%S')
         self.email = 'test-' + self.now + '@example.com'
-        self.response_uuid = ''
-        self.response_email = ''
-        self.response_cert = ''
-        self.response_pubkey = ''
 
     def test_01_testendpoint(self):
         endpoint = self.apiurl + '/test'
