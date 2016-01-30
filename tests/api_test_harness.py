@@ -35,7 +35,6 @@ class Monolithic(unittest.TestCase):
         c = OpenSSL.crypto
         self.key = c.PKey()
         self.key.generate_key(c.TYPE_RSA, 512)
-        # self.pubkey = c.dump_publickey(c.FILETYPE_PEM, self.key)
         req = c.X509Req()
         req.get_subject().CN = self.email
         req.set_pubkey(self.key)
@@ -52,14 +51,25 @@ class Monolithic(unittest.TestCase):
         self.response_uuid = r.json()['uuid']
         self.response_cert = r.json()['cert'].replace('\\n', '\n')
 
-        # Extract the public key from the new cert
+        # Extract the public key and email address from the new cert
         cert = c.load_certificate(c.FILETYPE_PEM, self.response_cert)
-        cert_pubkey = cert.get_pubkey()
-        # self.response_pubkey = c.dump_publickey(c.FILETYPE_PEM, cert_pubkey)
+        cert_subject = cert.get_subject()
+        cert_cn = cert_subject.commonName
 
-        # Need to figure out an assertion for this test case.
-        print self.response_cert
-        self.assertTrue(True)
+        # Save off the X509 object for use in later test cases
+        self.x509cert = cert
+
+        # Verify that we got back an X.509 certificate
+        self.assertTrue(isinstance(cert, OpenSSL.crypto.X509))
+
+        # Verify that the certificate's email address matches what we sent
+        self.assertEqual(self.email, cert_cn)
+
+        # Unfortuneatly, the dump_publickey branch hasn't been merged into
+        # the production pyOpenSSL module. So these next lines won't work.
+        # TODO: try and get this PR accepted by the upstream community
+        # self.response_pubkey = c.dump_publickey(c.FILETYPE_PEM, cert_pubkey)
+        # self.pubkey = c.dump_publickey(c.FILETYPE_PEM, self.key)
 
 
 if __name__ == '__main__':
