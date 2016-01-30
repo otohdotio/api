@@ -122,8 +122,15 @@ class Certificate(object):
         try:
             # Generate a new sequential SN and a random UUID
             u, sn = self.get_new_sn()
+
             # Now create the new cert
             cert_pem = self.ca.create_cert(csr, key_use, int(sn), ca_bool)
+            x509cert = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM,
+                                                       cert_pem)
+            # Get the CN from the cert
+            cn = x509cert.get_subject().commonName
+
+            # Denature the \s for easier parsing later
             cert_pem = cert_pem.replace('\n', '\\n')
             # Left off here, next step is to insert the cert into Cassandra
         except Exception as e:
@@ -131,10 +138,14 @@ class Certificate(object):
 
         # Generate our CQL queries to store the cert
         cql = """
+                begin batch
                 insert into cert (uuid, cert_sn, cert, ca_chain)
-                values ('{0}', {1}, '{2}', null)
+                values ('{0}', {1}, '{2}', null);
+                insert into cn_cert (cn, uuid, cert_sn, cert, ca_chain)
+                values ('{3}', '{4}', {5}, '{6}', null);
+                apply batch;
               """
-        cql = cql.format(u, sn, cert_pem)
+        cql = cql.format(u, sn, cert_pem, cn, u, sn, cert_pem)
         # TODO: set up persistence container to contain otoh CA certs
         try:
             # Execute our CQL query
@@ -144,18 +155,24 @@ class Certificate(object):
 
         return u, sn, cert_pem
 
-    def get_cert(self, u):
-        cql = """
-                select cert from cert where uuid = '{0}'
-              """
-        cql = cql.format(u)
+    def get_cert(self, **kwargs):
+        if kwargs.get('uuid'):
+            cql = """
+                    select cert from cert where uuid = '{0}'
+                  """
+            cql = cql.format(kwargs['uuid'])
+        if kwargs.get('cn'):
+            cql = """
+                    select cert from cn_cert where cn = '{0}'
+                  """
+            cql = cql.format(kwargs['cn'])
+
         r = []
         try:
-            r = self.cdb.execute('get cert by uuid', cql)
+            r = self.cdb.execute('get cert', cql)
         except Exception as e:
             raise e
 
         return {'cert': str(r[0]['cert'])}
-
 
 

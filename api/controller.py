@@ -80,10 +80,13 @@ class Cert(object):
         self.logger.debug('Cert object init complete')
 
     def GET(self, **kwargs):
-        if not kwargs.get('uuid'):
+        if not kwargs.get('uuid') and not kwargs.get('cn'):
             raise cherrypy.HTTPError(status=400,
-                                     message='ERROR: Must provide UUID')
-        return json.dumps(self.certificate.get_cert(kwargs['uuid']))
+                                     message='ERROR: Must provide UUID or CN')
+        if kwargs.get('uuid'):
+            return json.dumps(self.certificate.get_cert(uuid=kwargs['uuid']))
+        if kwargs.get('cn'):
+            return json.dumps(self.certificate.get_cert(cn=kwargs['cn']))
 
     def POST(self):
         raise cherrypy.HTTPError(status=405,
@@ -96,6 +99,7 @@ class Cert(object):
                                          'use GET or DELETE')
 
     def DELETE(self):
+        cn = cherrypy.request.wsgi_environ['SSL_CLIENT_S_DN_CN']
         data = handle_json(cherrypy.request.headers['Content-Length'])
 
 
@@ -196,7 +200,9 @@ class Search(object):
                                          '/search, use POST')
 
     def POST(self):
-        data = handle_json(cherrypy.request.headers['Content-Length'])
+        # data = handle_json(cherrypy.request.headers['Content-Length'])
+        raise cherrypy.HTTPError(status=500,
+                                 message='Method not yet implemented')
 
     def PUT(self):
         raise cherrypy.HTTPError(status=405,

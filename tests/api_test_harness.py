@@ -12,6 +12,7 @@ requests.packages.urllib3.disable_warnings()
 
 
 class Monolithic(unittest.TestCase):
+    now = datetime.now().strftime('%Y%m%d%H%M%S')
     response_uuid = ''
     response_cert = ''
     response_x509 = OpenSSL.crypto.X509
@@ -19,8 +20,7 @@ class Monolithic(unittest.TestCase):
     def setUp(self):
         self.s = requests.Session()
         self.apiurl = 'https://localhost:443'
-        self.now = datetime.now().strftime('%Y%m%d%H%M%S')
-        self.email = 'test-' + self.now + '@example.com'
+        self.email = 'test-' + self.__class__.now + '@example.com'
         self.response_uuid = ''
         self.response_cert = ''
         self.response_x509 = OpenSSL.crypto.X509
@@ -71,9 +71,25 @@ class Monolithic(unittest.TestCase):
         # self.response_pubkey = c.dump_publickey(c.FILETYPE_PEM, cert_pubkey)
         # self.pubkey = c.dump_publickey(c.FILETYPE_PEM, self.key)
 
-    def test_03_get_cert(self):
+    def test_03_get_cert_by_uuid(self):
         endpoint = self.apiurl + '/cert'
         payload = {'uuid': self.__class__.response_uuid}
+        rc = self.__class__.response_cert
+        r = requests.get(endpoint,
+                         params=payload,
+                         verify=False)
+        got_cert = r.json()['cert']
+
+        # Doing this because assertEqual doesn't like the length of the cert
+        # strings.
+        passed = False
+        if rc == got_cert:
+            passed = True
+        self.assertTrue(passed)
+
+    def test_04_get_cert_by_cn(self):
+        endpoint = self.apiurl + '/cert'
+        payload = {'cn': self.email}
         rc = self.__class__.response_cert
         r = requests.get(endpoint,
                          params=payload,
