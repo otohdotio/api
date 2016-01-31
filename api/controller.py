@@ -1,7 +1,7 @@
 import json
 import logging
 import logging.handlers
-import os
+import collections
 import sys
 
 import cherrypy
@@ -99,8 +99,31 @@ class Cert(object):
                                          'use GET or DELETE')
 
     def DELETE(self):
+        # I'm on the fence about this method. One one hand, it would be nice
+        # to fully delete a certificate if it was created in error. On the
+        # other hand, it would be better just to issue a revocation cert and
+        # update the OCSP responder. For now we'll leave it in.
+        od = collections.OrderedDict(sorted(cherrypy.request.wsgi_environ.items()))
+        self.logger.debug('\n'.join("%s=%s" % (k, v) for (k, v) in od.iteritems()))
         cn = cherrypy.request.wsgi_environ['SSL_CLIENT_S_DN_CN']
         data = handle_json(cherrypy.request.headers['Content-Length'])
+        if not data.get('uuid'):
+            raise cherrypy.HTTPError(status=400,
+                                     message='ERROR: Must provide UUID')
+        if self.certificate.get_uuid_by_cn(cn) != data['uuid']:
+            raise cherrypy.HTTPError(status=400,
+                                     message='ERROR: You can only delete the' +
+                                             'cert if you have it and ' +
+                                             'provide it as a client cert. ' +
+                                             'Otherwise, revoke the cert ' +
+                                             'with the /ocsp endpoint.')
+        try:
+            self.certificate.delete_cert(cn, data['uuid'])
+        except Exception as e:
+            raise cherrypy.HTTPError(status=500,
+                                     message='ERROR: failed to delete: ' +
+                                     str(e))
+        return json.dumps({'result': 'success'})
 
 
 class CSR(object):

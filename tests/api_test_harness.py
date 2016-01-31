@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import json
 import unittest
 from datetime import datetime
@@ -12,14 +11,21 @@ requests.packages.urllib3.disable_warnings()
 
 
 class Monolithic(unittest.TestCase):
+    # Set up some global variables
+    ## Note we have to set now here, otherwise we'll get a new timestamp
+    ## each time setUp runs.
     now = datetime.now().strftime('%Y%m%d%H%M%S')
     response_uuid = ''
     response_cert = ''
     response_x509 = OpenSSL.crypto.X509
+    client_key = OpenSSL.crypto.PKey
 
     def setUp(self):
         self.s = requests.Session()
-        self.apiurl = 'https://localhost:443'
+        # For dev purposes with docker-machine, I put the following in my
+        # /etc/hosts:
+        # 192.168.99.100 api.otoh.io
+        self.apiurl = 'https://api.otoh.io:443'
         self.email = 'test-' + self.__class__.now + '@example.com'
         self.response_uuid = ''
         self.response_cert = ''
@@ -37,6 +43,8 @@ class Monolithic(unittest.TestCase):
         c = OpenSSL.crypto
         self.key = c.PKey()
         self.key.generate_key(c.TYPE_RSA, 512)
+
+        # Now make our CSR object
         req = c.X509Req()
         req.get_subject().CN = self.email
         req.set_pubkey(self.key)
@@ -45,12 +53,25 @@ class Monolithic(unittest.TestCase):
         # Grab request
         self.csr = c.dump_certificate_request(c.FILETYPE_PEM, req)
         csrdict = {'csr': self.csr, 'key_use': 'ke'}
+
         # Now submit the CSR and get a cert back, then save them for later use
         r = requests.post(endpoint,
                           json=json.loads(json.dumps(csrdict)),
                           verify=False)
         self.__class__.response_uuid = r.json()['uuid']
         self.__class__.response_cert = r.json()['cert']
+
+        # Save off the cert and private key to files for use later
+        cert_string = str(r.json()['cert'].replace('\\n', '\n'))
+        key_string = str(c.dump_privatekey(c.FILETYPE_PEM, self.key))
+        cert_handle = open('./client_cert', 'w')
+        key_handle = open('./client_key', 'w')
+        cert_handle.truncate()
+        key_handle.truncate()
+        cert_handle.write(cert_string)
+        key_handle.write(key_string)
+        cert_handle.close()
+        key_handle.close()
 
         # Extract the public key and email address from the new cert
         cert = c.load_certificate(c.FILETYPE_PEM, self.__class__.response_cert.replace('\\n', '\n'))
@@ -76,8 +97,8 @@ class Monolithic(unittest.TestCase):
         payload = {'uuid': self.__class__.response_uuid}
         rc = self.__class__.response_cert
         r = requests.get(endpoint,
-                         params=payload,
-                         verify=False)
+                            params=payload,
+                            verify=False)
         got_cert = r.json()['cert']
 
         # Doing this because assertEqual doesn't like the length of the cert
@@ -102,6 +123,17 @@ class Monolithic(unittest.TestCase):
         if rc == got_cert:
             passed = True
         self.assertTrue(passed)
+
+    def test_05_delete_cert(self):
+        endpoint = self.apiurl + '/cert'
+        uuiddict = {'uuid': self.__class__.response_uuid}
+        stop = 'here'
+        r = requests.delete(endpoint,
+                            json=json.loads(json.dumps(uuiddict)),
+                            cert=('./client_cert', './client_key'),
+                            verify='../ssl/server-ca.crt')
+        result = r.json()['result']
+        self.assertEqual(result, 'success')
 
 
 if __name__ == '__main__':

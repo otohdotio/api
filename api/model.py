@@ -175,4 +175,31 @@ class Certificate(object):
 
         return {'cert': str(r[0]['cert'])}
 
+    def get_uuid_by_cn(self, cn):
+        cql = """
+                select uuid from cn_cert where cn = '{0}'
+              """
+        cql = cql.format(cn)
 
+        r = []
+        try:
+            r = self.cdb.execute('get uuid', cql)
+        except Exception as e:
+            raise e
+
+        return r[0]['uuid']
+
+    def delete_cert(self, cn, u):
+        cql = """
+                begin batch
+                delete from cn_cert where cn = '{0}';
+                delete from cert where uuid = '{1}';
+                apply batch;
+              """
+        cql = cql.format(cn, u)
+
+        r = []
+        try:
+            r = self.cdb.execute('get uuid', cql)
+        except Exception as e:
+            raise e
