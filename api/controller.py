@@ -98,19 +98,18 @@ class Cert(object):
                                  message='PUT method not exposed for /cert, ' +
                                          'use GET or DELETE')
 
-    def DELETE(self):
+    def DELETE(self, **kwargs):
         # I'm on the fence about this method. One one hand, it would be nice
         # to fully delete a certificate if it was created in error. On the
         # other hand, it would be better just to issue a revocation cert and
         # update the OCSP responder. For now we'll leave it in.
-        od = collections.OrderedDict(sorted(cherrypy.request.wsgi_environ.items()))
-        self.logger.debug('\n'.join("%s=%s" % (k, v) for (k, v) in od.iteritems()))
+        # Also, apparently cherrypy doesn't want DELETE to have a body, so
+        # we'll use ?uuid= instead.
         cn = cherrypy.request.wsgi_environ['SSL_CLIENT_S_DN_CN']
-        data = handle_json(cherrypy.request.headers['Content-Length'])
-        if not data.get('uuid'):
+        if not kwargs.get('uuid'):
             raise cherrypy.HTTPError(status=400,
                                      message='ERROR: Must provide UUID')
-        if self.certificate.get_uuid_by_cn(cn) != data['uuid']:
+        if self.certificate.get_uuid_by_cn(cn) != kwargs['uuid']:
             raise cherrypy.HTTPError(status=400,
                                      message='ERROR: You can only delete the' +
                                              'cert if you have it and ' +
@@ -118,7 +117,7 @@ class Cert(object):
                                              'Otherwise, revoke the cert ' +
                                              'with the /ocsp endpoint.')
         try:
-            self.certificate.delete_cert(cn, data['uuid'])
+            self.certificate.delete_cert(cn, kwargs['uuid'])
         except Exception as e:
             raise cherrypy.HTTPError(status=500,
                                      message='ERROR: failed to delete: ' +

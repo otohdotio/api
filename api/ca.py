@@ -21,8 +21,6 @@ class CA(object):
         # Grab signing cert from config file
         ca_cert = self.config_dict['signing_cert']
         ca_key = self.config_dict['signing_key']
-        ### Left off here -- I think I removed the key password, which
-        # probably won't work with pyOpenSSL. Need to regenerate the cert
         ca_key_passwd = self.config_dict['signing_key_passwd']
 
         # Currently only support key encipherment and signing certs
@@ -49,12 +47,16 @@ class CA(object):
             ca_flag = 'CA:TRUE'
         cert = OpenSSL.crypto.X509()
         cert.set_version(3)
+        # TODO: add support for arbitrary extensions
         cert.add_extensions([OpenSSL.crypto.X509Extension("basicConstraints",
                                                           True,
                                                           ca_flag),
                              OpenSSL.crypto.X509Extension('keyUsage',
-                                                          True,
-                                                          long_use)])
+                                                          False,
+                                                          long_use),
+                             OpenSSL.crypto.X509Extension('extendedKeyUsage',
+                                                          False,
+                                                          'serverAuth,clientAuth')])
         cert.set_subject(req.get_subject())
         cert.set_serial_number(sn)
         cert.gmtime_adj_notBefore(0)

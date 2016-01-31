@@ -52,7 +52,7 @@ class Monolithic(unittest.TestCase):
 
         # Grab request
         self.csr = c.dump_certificate_request(c.FILETYPE_PEM, req)
-        csrdict = {'csr': self.csr, 'key_use': 'ke'}
+        csrdict = {'csr': self.csr, 'key_use': 'ds'}
 
         # Now submit the CSR and get a cert back, then save them for later use
         r = requests.post(endpoint,
@@ -127,9 +127,9 @@ class Monolithic(unittest.TestCase):
     def test_05_delete_cert(self):
         endpoint = self.apiurl + '/cert'
         uuiddict = {'uuid': self.__class__.response_uuid}
-        stop = 'here'
         r = requests.delete(endpoint,
-                            json=json.loads(json.dumps(uuiddict)),
+                            params=uuiddict,
+                            # json=json.loads(json.dumps(uuiddict)),
                             cert=('./client_cert', './client_key'),
                             verify='../ssl/server-ca.crt')
         result = r.json()['result']
